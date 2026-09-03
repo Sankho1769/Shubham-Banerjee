@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../../bootstrap.php';
+
+use App\Helpers\ApiRequest;
+use App\Helpers\Response;
+use App\Middleware\AuthMiddleware;
+use App\Services\ForbiddenException;
+use App\Services\NotFoundException;
+use App\Services\ReminderService;
+use App\Services\SystemCountdownProtectedException;
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    Response::error('Method not allowed.', 405);
+}
+
+$userId = AuthMiddleware::requireApi();
+ApiRequest::requireCsrf();
+
+$data = ApiRequest::json();
+$id = $data['id'] ?? '';
+if (!$id) {
+    Response::error('Reminder id is required.', 422);
+}
+
+try {
+    $reminder = (new ReminderService())->duplicate($id, $userId);
+    Response::success(['reminder' => $reminder], 201);
+} catch (SystemCountdownProtectedException $e) {
+    Response::systemProtected();
+} catch (NotFoundException $e) {
+    Response::error('Reminder not found.', 404);
+} catch (ForbiddenException $e) {
+    Response::error('You do not have access to this reminder.', 403);
+} catch (\Throwable $e) {
+    \App\Helpers\Logger::error('Reminder duplicate failed', ['error' => $e->getMessage()]);
+    Response::error('Could not duplicate the reminder.', 500);
+}

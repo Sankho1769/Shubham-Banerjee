@@ -1,0 +1,415 @@
+/* ==========================================================================
+   BOARDING — Design tokens
+   Aviation / departure-board / boarding-pass identity.
+   Dark, cinematic base; split-flap numerals for countdowns.
+   ========================================================================== */
+
+:root {
+  /* Surfaces */
+  --bg-void:        #0a0d13;
+  --bg-base:        #0d1119;
+  --bg-panel:       #12172180;
+  --bg-panel-solid: #121721;
+  --bg-card:        #161c28;
+  --bg-card-hover:  #1b2230;
+  --border-subtle:  #23293780;
+  --border-strong:  #2e3648;
+
+  /* Text */
+  --text-primary:   #edeff3;
+  --text-secondary: #8a93a6;
+  --text-tertiary:  #5c6478;
+
+  /* Brand */
+  --amber:          #f2a93b;
+  --amber-dim:      #f2a93b26;
+  --teal:           #3ed6c5;
+  --teal-dim:       #3ed6c526;
+
+  /* Status */
+  --status-good:    #4cd787;
+  --status-warn:    #e0b23a;
+  --status-critical:#e5533d;
+
+  /* Priority accents */
+  --priority-low:      #5c6478;
+  --priority-normal:   #8a93a6;
+  --priority-high:     #f2a93b;
+  --priority-critical: #e5533d;
+
+  /* Typography */
+  --font-display: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-body:    'Inter', 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Rhythm */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --shadow-card: 0 8px 24px -8px #00000066;
+  --shadow-lift: 0 16px 40px -12px #000000a0;
+
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --bg-void:        #f4f5f7;
+  --bg-base:        #eef0f3;
+  --bg-panel:       #ffffffcc;
+  --bg-panel-solid: #ffffff;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #f8f9fb;
+  --border-subtle:  #dde1e8;
+  --border-strong:  #c9cfda;
+  --text-primary:   #171b23;
+  --text-secondary: #5a6274;
+  --text-tertiary:  #939bab;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, #f2a93b12, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, #3ed6c50f, transparent 60%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+::selection { background: var(--amber-dim); color: var(--text-primary); }
+
+/* Focus visibility — never suppressed */
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   Layout shell
+   ========================================================================== */
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--bg-panel-solid);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+  gap: var(--space-6);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  padding: 0 var(--space-2);
+}
+.brand .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px var(--amber); }
+
+.nav-group { display: flex; flex-direction: column; gap: var(--space-1); }
+.nav-link {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.nav-link:hover { background: var(--bg-card); color: var(--text-primary); }
+.nav-link.active { background: var(--amber-dim); color: var(--amber); }
+
+.main-content { flex: 1; min-width: 0; padding: var(--space-6) var(--space-7); }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { padding: var(--space-4); }
+}
+
+/* ==========================================================================
+   Boarding-pass / ticket card
+   ========================================================================== */
+
+.ticket-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.ticket-card:hover { border-color: var(--border-strong); }
+
+.ticket-card.is-system {
+  border-color: var(--amber-dim);
+  background:
+    linear-gradient(160deg, #f2a93b14 0%, transparent 40%),
+    var(--bg-card);
+}
+
+.ticket-card__stub-edge {
+  position: absolute;
+  top: 0; bottom: 0;
+  right: 92px;
+  width: 0;
+  border-right: 1px dashed var(--border-strong);
+}
+
+.ticket-card__notch {
+  position: absolute;
+  right: 92px;
+  width: 20px; height: 20px;
+  background: var(--bg-base);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+.ticket-card__notch.top { top: -10px; }
+.ticket-card__notch.bottom { bottom: -10px; }
+
+.ticket-card__body {
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.ticket-card__main { flex: 1; min-width: 0; }
+
+.ticket-card__eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.ticket-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ticket-card__meta {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.ticket-card__stub {
+  width: 92px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: var(--text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+}
+
+/* ==========================================================================
+   Split-flap countdown
+   ========================================================================== */
+
+.countdown {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.countdown__unit { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+
+.countdown__value {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 600;
+  background: var(--bg-void);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  min-width: 2.4em;
+  text-align: center;
+  color: var(--amber);
+  box-shadow: inset 0 1px 0 #ffffff0d, 0 1px 0 #00000080;
+  position: relative;
+}
+.countdown__value::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 1px;
+  background: #00000050;
+}
+
+.countdown__label {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.countdown--compact .countdown__value { font-size: 1.1rem; padding: var(--space-1) var(--space-2); }
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn--primary { background: var(--amber); color: #1a1206; }
+.btn--primary:hover { background: #f5b854; }
+
+.btn--ghost { background: transparent; border-color: var(--border-strong); color: var(--text-primary); }
+.btn--ghost:hover { background: var(--bg-card); }
+
+.btn--icon { padding: var(--space-2); }
+.btn--danger { color: var(--status-critical); border-color: var(--status-critical); background: transparent; }
+.btn--danger:hover { background: #e5533d1a; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+.field { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+.field label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+
+.input, select.input, textarea.input {
+  background: var(--bg-void);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: var(--space-3);
+  font-size: 0.95rem;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-dim); outline: none; }
+
+.form-error {
+  background: #e5533d14;
+  border: 1px solid #e5533d40;
+  color: #f28c7c;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-4);
+}
+
+/* ==========================================================================
+   Auth pages
+   ========================================================================== */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-panel-solid);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-6);
+  box-shadow: var(--shadow-lift);
+}
+
+.auth-brand {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+.auth-brand__mark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+}
+.auth-brand__tagline {
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  margin-top: var(--space-1);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: var(--space-5);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.auth-footer a { color: var(--teal); font-weight: 600; }
+
+/* ==========================================================================
+   Empty state
+   ========================================================================== */
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-5);
+  color: var(--text-secondary);
+}
+.empty-state__title {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  margin-bottom: var(--space-2);
+}
